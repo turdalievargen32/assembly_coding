@@ -1,0 +1,186 @@
+.data
+i:  .word 5        # Index i = 5
+m:  .word 12       # Another variable m for demonstration, not used in this example
+x:  .word 5,-1,7,3,2,6,8,9,10,11,21,32 # Array x with 12 elements
+
+.text
+	la s0, x 
+	lw t0, i 
+	slli t0, s0, 2 
+	add s0, s0, t0 
+	lw a0, 0(s0) 
+	li a7, 1 
+	ecall 
+	li a7, 10 
+	ecall 
+
+
+
+
+# count the number of item's equal to y in
+
+.data
+y: .word 5                # Starting index i = 5
+n: .word 12               # Length of the array, not used in this example
+x: .word 5,-1,7,3,2,6,8,9,10,11,21,5 # The array x
+
+.text
+la s0, x                   # count the number of item's equal to y in the array 
+lw t0, n
+lw t2, y 
+li a0, 0 
+ciclo: 
+	lw t1, 0(s0)
+	bne t1, t2, salta
+	addi a0, a0, 1 
+salta:
+	addi s0, s0, 4 
+	addi t0, t0, -1 
+	bne t0, zero, ciclo 
+	li a7, 1 
+	ecall 
+	li a7, 10 
+	ecall 
+
+
+# count how many y's in lista 
+.data
+lista: .word nodo1          # Pointer to the first node
+y: .word 5                  # Value to count in the list
+nodo1: .word 5, nodo2       # First node containing a value and pointer to the next node
+nodo2: .word 5, nodo3       # Second node (assuming there are more nodes)
+nodo3: .word 7, 0           # Last node with a null pointer indicating the end of the list
+
+.text
+lw s0, lista            # Load address of the first node into t0
+lw t1, y                # Load the value to count (y) into t1             
+li a0, 0 
+ciclo:
+	lw t1, 0(s0)
+	bne t1, t2, salta
+	addi a0, a0, 1
+salta:  lw s0, 4(s0)
+	bne s0, zero, ciclo 
+	li a7, 1
+	ecall 
+	li a7, 10 
+	ecall 
+
+resursion version 
+.data
+lista: .word nodo1          # Pointer to the first node
+y: .word 5                  # Value to count in the list
+nodo1: .word 5, nodo2       # First node containing a value and pointer to the next node
+nodo2: .word 5, nodo3       # Second node (assuming there are more nodes)
+nodo3: .word 7, 0           # Last node with a null pointer indicating the end of the list
+
+.text
+lw a0, lista
+lw a1, y
+jal ra,conta
+li a7, 1
+ecall 
+li a7, 10 
+ecall 
+
+conta:
+    li a2, 0              
+
+    loop:
+        beqz a0, done       
+        lw t0, 0(a0)       
+        lw a0, 4(a0)        
+        bne t0, a1, loop    
+
+        
+        addi a2, a2, 1      
+        j loop             
+    done:
+        mv a0, a2           
+        jr ra
+        
+        
+ another option
+ 
+conta: 
+     bne a0, zero, ric 
+     jalr zero, ra, 0
+ric: addi sp, sp, -8 
+     sw ra, 0(sp)
+     sw a0, 4(sp)
+     lw a0, 4(a0)
+     jal ra, conta
+     lw t0, 4(sp)
+     lw t1, 0(t0)
+     bne t1, a1, salta
+     addi a0, a0, 1 
+salta: 
+     lw ra, 0(sp)
+     addi sp, sp, 8 
+     jalr zero, ra,0 
+     li a7, 1 
+     ecall 
+     li a7, 10 
+     ecall 
+     
+# invert the list (return the new list) 
+.data
+lista: .word nodo1          # Pointer to the first node
+nodo1: .word 7, nodo 2         # Last node with a null pointer indicating the end of the list
+
+.text
+lw a0, lista
+lw a1, y
+jal ra, inverti 
+li a7, 1
+ecall 
+li a7, 10 
+ecall 
+
+
+inverti:
+       lw t0, 4(a0)
+       bne t0, zero, ric 
+       jalr zero, ra, 0 
+ric:	addi sp, sp, -8 
+	sw ra, 0(sp)
+	sw a0, 4(sp)
+	lw a0, 4(a0)
+	jal ra, inverti 
+	lw t0, 4(sp)
+	lw t1, 4(t0)
+	sw t0, 4(t1)
+	sw zero, 4(t0)
+	lw ra, 0(sp)
+	addi sp,sp, 8
+	jalr zero, ra, 0 
+	 
+	
+ # count how many items of a are in[x,y] 
+.data
+n: .word 5 
+x: .word 20 
+y: .word 30 
+a: .word 21,17, 5, -2, 28 
+
+.text 
+	la s0, a 
+	lw t1, n 
+	lw t0, x 
+	lw t1, y 
+	li a0, 0 
+ciclo:
+	lw t2, 0(s0)
+	blt t2, t0, nonvabene 
+	bge t2, t1, nonvabene 
+	addi a0, a0, 1 
+nonvabene: 
+	addi s0, s0, 4 
+	addi s1, s1, 01 
+	bne s1, zero, ciclo 
+	li a7, 1 
+	ecall 
+	li a7, 10 
+	ecall 
+	
+

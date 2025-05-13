@@ -1,0 +1,14 @@
+.data 
+.word 20 
+.word 10 
+
+
+.text
+    lui x5, 0x10010         
+    lw x3, 0(x5)           
+    lw x4, 4(x5)           
+    sub a0, x3, x4          
+    addi a7, x0, 1          
+    ecall                  
+    addi a7, x0, 10        
+    ecall 
